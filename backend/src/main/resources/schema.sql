@@ -1,0 +1,2 @@
+-- Schema will be auto-created by Hibernate ddl-auto: update
+-- This file is for additional schema definitions if needed

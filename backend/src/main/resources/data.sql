@@ -1,0 +1,2 @@
+-- Initial data for testing
+-- Destination table will be created by Hibernate
