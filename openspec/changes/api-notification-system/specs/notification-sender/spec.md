@@ -9,7 +9,7 @@ The sender SHALL execute HTTP POST requests to external APIs using destination c
 
 #### Scenario: Failed delivery with retry
 - **WHEN** external API returns non-2xx or timeout
-- **THEN** notification is retried up to 3 times with fixed interval
+- **THEN** notification is retried up to 3 times with fixed 5-second interval
 
 ### Requirement: Sender supports API Key authentication
 The sender SHALL include API Key in X-API-Key header.
