@@ -12,6 +12,111 @@
 - 接收方（外部 API）：不可控，可能无多环境，HTTP 存在中间人攻击风险
 - 业务系统不关心外部 API 返回值，只关心通知是否送达
 - **优先保证简单**，避免过度设计
+- **采用单体架构 + 前后端分离**，简化部署和运维
+
+## 系统架构图
+
+### 整体架构
+
+```mermaid
+graph TB
+    subgraph 业务系统
+        SYS1[业务系统 A]
+        SYS2[业务系统 B]
+        SYS3[业务系统 C]
+    end
+
+    subgraph NotificationService[通知服务 - 单体架构]
+        subgraph Frontend[前端]
+            WEB[Web UI<br/>配置管理 / 监控看板]
+        end
+
+        subgraph Backend[后端 API]
+            API[Notification API<br/>接收通知请求]
+            CONFIG[Config Service<br/>配置管理]
+            SENDER[Sender Service<br/>投递服务]
+            MONITOR[Monitor Service<br/>监控服务]
+        end
+
+        subgraph Data[数据层]
+            DB[(数据库<br/>配置 + 投递记录)]
+        end
+    end
+
+    subgraph 外部系统
+        EXT1[广告系统 API]
+        EXT2[CRM 系统 API]
+        EXT3[库存系统 API]
+    end
+
+    SYS1 -->|HTTP POST| API
+    SYS2 -->|HTTP POST| API
+    SYS3 -->|HTTP POST| API
+
+    WEB -->|HTTP/REST| API
+    WEB -->|HTTP/REST| CONFIG
+    WEB -->|HTTP/REST| MONITOR
+
+    API --> CONFIG
+    API --> SENDER
+    SENDER --> DB
+    CONFIG --> DB
+    MONITOR --> DB
+
+    SENDER -->|HTTP/S| EXT1
+    SENDER -->|HTTP/S| EXT2
+    SENDER -->|HTTP/S| EXT3
+```
+
+### 前端后端交互流程
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant F as 前端 Web
+    participant A as 后端 API
+    participant S as Sender
+    participant E as 外部 API
+
+    Note over U,E: 管理员操作流程
+    U->>F: 访问配置管理页面
+    F->>A: 获取 Destination 列表
+    A->>F: 返回配置列表
+    U->>F: 创建/编辑 Destination
+    F->>A: 提交配置
+    A->>A: 验证并保存到数据库
+    A->>F: 返回保存结果
+
+    Note over U,E: 业务系统投递通知流程
+    SYS->>A: POST /api/v1/notifications
+    A->>A: 验证请求
+    A->>S: 触发投递
+    A->>SYS: 返回 202 Accepted
+    S->>E: HTTP POST
+    E-->>S: 响应结果
+    S->>S: 记录结果到数据库
+```
+
+### 投递流程
+
+```mermaid
+flowchart LR
+    A([业务系统]) -->|POST /notifications| B[API]
+    B -->|验证| C{验证通过?}
+    C -->|否| D[返回 400]
+    C -->|是| E[保存到数据库]
+    E --> F[返回 202 Accepted]
+    F --> G[Sender 异步投递]
+    G --> H{外部 API 响应}
+    H -->|2xx| I[标记成功]
+    H -->|4xx/5xx| J[重试?]
+    H -->|超时| J
+    J -->|是| K[指数退避等待]
+    K --> G
+    J -->|否| L[标记失败]
+    I --> M[(数据库)]
+    L --> M
+```
 
 ## Goals / Non-Goals
 
@@ -20,7 +125,8 @@
 - 保证通知至少投递一次（at-least-once）
 - 支持同步投递（等待外部 API 响应）和异步投递（后台重试）
 - 提供完整的投递状态追踪和失败告警
-- 集中管理外部 API 配置（地址、认证、超时、重试策略）
+- 集中管理外部 API 配置（地址、认证、超时，重试策略）
+- 提供 Web UI 用于配置管理和监控看板
 
 **Non-Goals:**
 - 不处理外部 API 的返回值（业务系统不关心 response body）
@@ -31,21 +137,50 @@
 
 ## Decisions
 
-### Decision 1: 架构模式 - 直连 HTTP（简化方案）
+### Decision 1: 架构模式 - 单体架构 + 前后端分离
 
-**选择：直连 HTTP 投递，暂不引入消息队列**
+**选择：单体架构，前端后端分离部署**
 
 **理由：**
-- 当前通知量级未知，引入消息队列增加运维复杂度
-- 简化架构，加快第一版交付速度
-- HTTP 直连足够可靠，支持重试机制
-- 如果未来流量激增或需要更复杂的解耦，可以引入 RabbitMQ
+- 第一版量级未知，微服务架构增加复杂度
+- 单体架构开发、部署、运维更简单
+- 前后端分离便于独立迭代，前端专注 UI，后端专注业务
+- 如果未来复杂度显著增加，可以拆分为独立服务
 
-**替代方案考虑：**
-- 消息队列（RabbitMQ/RocketMQ）：**暂不采纳**，增加复杂度，适合未来扩展
-- 数据库 + 轮询：延迟高，资源消耗大，**不采纳**
+**模块划分：**
+- **前端**：Vue/React SPA，提供配置管理和监控看板
+- **后端**：Go/Java/Node.js，提供 RESTful API
+- **数据库**：SQLite/PostgreSQL，存储配置和投递记录
 
-### Decision 2: 消息投递语义 - At-Least-Once
+### Decision 2: 前端技术选型
+
+**选择：Vue 3 + Vite 或 React + Next.js**
+
+**理由：**
+- 主流前端框架，生态成熟
+- SPA 适合内部工具类应用
+- 如果需要 SEO 可考虑 Next.js
+
+### Decision 3: 后端技术选型
+
+**选择：Go**
+
+**理由：**
+- 高性能、低内存占用
+- 内置 HTTP 服务器，开发简单
+- 适合轻量级 API 服务
+- 如果团队熟悉 Java/Node.js 也可接受
+
+### Decision 4: 数据库选型
+
+**选择：SQLite（开发/小规模）/ PostgreSQL（生产）**
+
+**理由：**
+- SQLite 零配置，适合开发和小型部署
+- PostgreSQL 支持高并发，适合生产环境
+- 均为关系型数据库，事务支持好
+
+### Decision 5: 消息投递语义 - At-Least-Once
 
 **选择：At-Least-Once（至少一次）**
 
@@ -54,58 +189,31 @@
 - 业务优先保证不丢消息，接受少量重复
 - 实现复杂度适中，重试机制成熟
 
-**取舍：**
-- 可能产生重复通知，需要外部系统做好幂等处理
-- 不能保证 exactly-once 的情况下，接受重复是合理权衡
-
-### Decision 3: 重试策略 - 指数退避 + 最大次数
+### Decision 6: 重试策略 - 指数退避 + 最大次数
 
 **选择：指数退避，最大 5 次重试**
 
-**理由：**
-- 指数退避避免对暂时性故障的外部 API 造成压力
-- 5 次重试覆盖大多数临时故障场景（网络抖动、目标服务重启）
-- 重试失败后记录失败状态，支持后续人工排查
-
-**参数建议：**
+**参数：**
 - 基础延迟：1s
 - 退避倍数：2
 - 最大延迟：60s
 - 最大重试：5次
 
-### Decision 4: 认证方式 - 配置化支持多种认证
+### Decision 7: 认证方式 - 配置化支持多种认证
 
 **选择：配置中心统一管理认证信息**
 
-**理由：**
-- 不同外部 API 认证方式不同（API Key、Bearer Token、Basic Auth、OAuth2）
-- 认证信息敏感，需加密存储
-- 业务系统不应接触认证细节，只知道"发送通知"
+- API Key、Bearer Token、Basic Auth、OAuth2
+- 敏感信息加密存储
 
-**实现：**
-- Destination Config 中存储认证信息（加密）
-- Sender 根据配置自动添加认证 header
-- 不在代码中硬编码认证信息
-
-### Decision 5: HTTPS 安全 - 跳过证书验证（可配置）
-
-**选择：默认验证 HTTPS 证书，可配置跳过**
-
-**理由：**
-- HTTPS 是基本原则，应该验证证书
-- 但部分开发/测试环境使用自签名证书
-- 提供可配置的 skip_cert_verify 选项，仅在明确风险的情况下使用
-- 生产环境必须验证证书
-
-### Decision 6: 监控方案 - Prometheus + Grafana
+### Decision 8: 监控方案 - Prometheus + Grafana
 
 **选择：基于 Prometheus metrics 暴露指标**
 
-**理由：**
-- 与现有监控系统兼容
-- 指标标准化（notifications_sent/delivered/failed/duration）
-- 支持多维度标签（destination、source_system）
-- 告警规则标准化
+- notifications_sent_total
+- notifications_delivered_total
+- notifications_failed_total
+- notification_delivery_duration_seconds
 
 ## Risks / Trade-offs
 
@@ -114,53 +222,43 @@
 
 **[Risk] 重试次数耗尽后通知丢失**
 → **Mitigation**: 记录所有失败通知的状态和原因，支持人工排查和重试
-→ **未来演进**: 引入死信队列处理最终失败的通知
 
-**[Risk] 认证信息泄露**
-→ **Mitigation**: 配置加密存储（如 Vault），最小权限原则，审计日志
-
-**[Risk] 重复通知导致业务问题**
-→ **Mitigation**: 在通知中包含幂等 ID；要求外部系统做好幂等处理
+**[Risk] 单体架构扩展性差**
+→ **Mitigation**: 合理设计模块边界，未来可平滑拆分为微服务
 
 ## Migration Plan
 
-**Phase 1: 搭建基础框架**
-1. 创建项目基础结构（目录、依赖）
-2. 实现 Config 配置管理
-3. 实现基础 HTTP 客户端
+**Phase 1: 项目基础**
+1. 搭建前端项目（Vue/React）
+2. 搭建后端项目（Go）
+3. 集成数据库
 
 **Phase 2: 核心功能**
-4. 实现 Notification API 接收接口
-5. 实现 Sender 投递功能（含重试逻辑）
-6. 实现 Mustache 模板引擎
+4. 实现配置管理 API + 前端页面
+5. 实现通知接收 API
+6. 实现 Sender 投递功能
+7. 实现重试机制
 
-**Phase 3: 监控与告警**
-7. 接入 Prometheus metrics
-8. 配置 Grafana 看板
-9. 配置失败告警
+**Phase 3: 监控功能**
+8. 实现 metrics 端点
+9. 实现监控看板前端
+10. 配置告警规则
 
 **Phase 4: 生产就绪**
-10. 完善 Config 加密存储
-11. 业务系统逐步接入
-
-**回滚策略：**
-- 业务系统可通过配置切换回直连模式（绕过通知服务）
+11. 完善加密存储
+12. 编写文档
+13. 业务系统接入
 
 ## Open Questions
 
-1. **外部 API 超时设置**：不同 API 可能需要不同超时，是统一默认值还是完全可配置？
-2. **通知顺序性**：是否需要保证同一 destination 的通知顺序？如不需要，可进一步优化吞吐。
-3. **监控数据保留**：监控指标和投递日志保留多长时间？
-4. **多环境支持**：是否需要区分 dev/staging/prod 的 destination 配置？
-5. **幂等 ID 生成**：如何生成确保全局唯一的幂等 ID？
+1. **外部 API 超时设置**：统一默认值 vs 可配置？
+2. **多环境支持**：是否需要区分 dev/staging/prod？
+3. **幂等 ID 生成**：如何生成全局唯一 ID？
 
 ## 演进规划
-
-当以下情况发生时，考虑引入更复杂的架构：
 
 | 触发条件 | 引入方案 |
 |----------|----------|
 | 通知量 > 1000/秒 | 引入 RabbitMQ 消息队列 |
-| 需要保证消息不丢失 | 引入消息持久化 + 确认机制 |
-| 失败通知需要人工处理 | 引入死信队列 + 管理界面 |
-| 需要跨多个服务协调 | 引入分布式事务或 saga 模式 |
+| 失败通知需人工处理 | 引入死信队列 |
+| 需要更高可用性 | 水平扩展 + 负载均衡 |
