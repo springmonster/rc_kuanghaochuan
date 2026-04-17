@@ -27,18 +27,17 @@ graph TB
     end
 
     subgraph NotificationService[通知服务 - 单体架构]
-        subgraph Frontend[前端]
-            WEB[Web UI<br/>配置管理 / 监控看板]
+        subgraph Frontend[前端 Vue 3]
+            WEB[Web UI<br/>配置管理]
         end
 
-        subgraph Backend[后端 API]
+        subgraph Backend[后端 SpringBoot]
             API[Notification API<br/>接收通知请求]
             CONFIG[Config Service<br/>配置管理]
             SENDER[Sender Service<br/>投递服务]
-            MONITOR[Monitor Service<br/>监控服务]
         end
 
-        subgraph Data[数据层]
+        subgraph Data[数据层 H2]
             DB[(数据库<br/>配置 + 投递记录)]
         end
     end
@@ -55,13 +54,11 @@ graph TB
 
     WEB -->|HTTP/REST| API
     WEB -->|HTTP/REST| CONFIG
-    WEB -->|HTTP/REST| MONITOR
 
     API --> CONFIG
     API --> SENDER
     SENDER --> DB
     CONFIG --> DB
-    MONITOR --> DB
 
     SENDER -->|HTTP/S| EXT1
     SENDER -->|HTTP/S| EXT2
@@ -73,8 +70,8 @@ graph TB
 ```mermaid
 sequenceDiagram
     participant U as 用户
-    participant F as 前端 Web
-    participant A as 后端 API
+    participant F as 前端 Vue 3
+    participant A as 后端 SpringBoot
     participant S as Sender
     participant E as 外部 API
 
@@ -106,7 +103,7 @@ flowchart LR
     C -->|否| D[返回 400]
     C -->|是| E[保存到数据库]
     E --> F[返回 202 Accepted]
-    F --> G[Sender 异步投递]
+    F --> G[Sender 同步/异步投递]
     G --> H{外部 API 响应}
     H -->|2xx| I[标记成功]
     H -->|4xx/5xx| J[重试?]
@@ -124,9 +121,9 @@ flowchart LR
 - 提供统一的 API 通知接入层，业务系统只需按标准格式投递
 - 保证通知至少投递一次（at-least-once）
 - 支持同步投递（等待外部 API 响应）和异步投递（后台重试）
-- 提供完整的投递状态追踪和失败告警
 - 集中管理外部 API 配置（地址、认证、超时，重试策略）
-- 提供 Web UI 用于配置管理和监控看板
+- 提供 Web UI 用于配置管理
+- 记录投递状态（成功/失败）
 
 **Non-Goals:**
 - 不处理外部 API 的返回值（业务系统不关心 response body）
@@ -134,6 +131,8 @@ flowchart LR
 - 不处理外部 API 的回调（单向通知）
 - **暂不引入消息队列**（RabbitMQ/RocketMQ）- 未来流量激增时再引入
 - **暂不引入死信队列** - 失败重试足够应对时暂不需要
+- **暂不实现限流** - 作为后续优化项
+- **暂不实现监控面板** - 作为后续优化项，优先保证核心投递功能
 
 ## Decisions
 
@@ -148,37 +147,38 @@ flowchart LR
 - 如果未来复杂度显著增加，可以拆分为独立服务
 
 **模块划分：**
-- **前端**：Vue/React SPA，提供配置管理和监控看板
-- **后端**：Go/Java/Node.js，提供 RESTful API
-- **数据库**：SQLite/PostgreSQL，存储配置和投递记录
+- **前端**：Vue 3 + Vite，提供配置管理界面
+- **后端**：SpringBoot，提供 RESTful API
+- **数据库**：H2（开发/测试），存储配置和投递记录
 
 ### Decision 2: 前端技术选型
 
-**选择：Vue 3 + Vite 或 React + Next.js**
+**选择：Vue 3 + Vite**
 
 **理由：**
 - 主流前端框架，生态成熟
-- SPA 适合内部工具类应用
-- 如果需要 SEO 可考虑 Next.js
+- 组件化开发，效率高
+- Vite 提供极速开发体验
 
 ### Decision 3: 后端技术选型
 
-**选择：Go**
+**选择：SpringBoot (Java)**
 
 **理由：**
-- 高性能、低内存占用
-- 内置 HTTP 服务器，开发简单
-- 适合轻量级 API 服务
-- 如果团队熟悉 Java/Node.js 也可接受
+- 企业级应用成熟框架
+- 生态完善，文档丰富
+- 团队熟悉度高
+- 内置 Web 服务器，部署简单
 
 ### Decision 4: 数据库选型
 
-**选择：SQLite（开发/小规模）/ PostgreSQL（生产）**
+**选择：H2 数据库**
 
 **理由：**
-- SQLite 零配置，适合开发和小型部署
-- PostgreSQL 支持高并发，适合生产环境
-- 均为关系型数据库，事务支持好
+- 零配置，嵌入式数据库
+- 开发测试方便，无需安装外部数据库
+- SQL 标准兼容性好
+- 未来可轻松迁移到 PostgreSQL/MySQL
 
 ### Decision 5: 消息投递语义 - At-Least-Once
 
@@ -206,15 +206,6 @@ flowchart LR
 - API Key、Bearer Token、Basic Auth、OAuth2
 - 敏感信息加密存储
 
-### Decision 8: 监控方案 - Prometheus + Grafana
-
-**选择：基于 Prometheus metrics 暴露指标**
-
-- notifications_sent_total
-- notifications_delivered_total
-- notifications_failed_total
-- notification_delivery_duration_seconds
-
 ## Risks / Trade-offs
 
 **[Risk] 外部 API 响应慢导致请求积压**
@@ -229,9 +220,9 @@ flowchart LR
 ## Migration Plan
 
 **Phase 1: 项目基础**
-1. 搭建前端项目（Vue/React）
-2. 搭建后端项目（Go）
-3. 集成数据库
+1. 搭建前端项目（Vue 3 + Vite）
+2. 搭建后端项目（SpringBoot）
+3. 集成 H2 数据库
 
 **Phase 2: 核心功能**
 4. 实现配置管理 API + 前端页面
@@ -239,15 +230,10 @@ flowchart LR
 6. 实现 Sender 投递功能
 7. 实现重试机制
 
-**Phase 3: 监控功能**
-8. 实现 metrics 端点
-9. 实现监控看板前端
-10. 配置告警规则
-
-**Phase 4: 生产就绪**
-11. 完善加密存储
-12. 编写文档
-13. 业务系统接入
+**Phase 3: 生产就绪**
+8. 完善加密存储
+9. 编写文档
+10. 业务系统接入
 
 ## Open Questions
 
@@ -261,4 +247,6 @@ flowchart LR
 |----------|----------|
 | 通知量 > 1000/秒 | 引入 RabbitMQ 消息队列 |
 | 失败通知需人工处理 | 引入死信队列 |
+| 需要限流保护 | 引入限流机制（令牌桶/滑动窗口） |
+| 需要可视化监控 | 引入 Prometheus + Grafana 监控面板 |
 | 需要更高可用性 | 水平扩展 + 负载均衡 |

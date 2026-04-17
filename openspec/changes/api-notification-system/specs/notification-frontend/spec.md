@@ -19,31 +19,25 @@ The frontend SHALL provide a web interface for managing destination configuratio
 - **WHEN** admin clicks delete and confirms
 - **THEN** destination is removed from the list
 
+### Requirement: Authentication
+The frontend SHALL support admin login to access configuration features.
+
+#### Scenario: Admin login
+- **WHEN** admin enters credentials and submits
+- **THEN** if credentials are valid, admin is logged in and redirected to configuration page
+
+## Future Requirements (暂不实现)
+
 ### Requirement: Monitoring Dashboard
-The frontend SHALL provide a dashboard showing notification delivery metrics.
+The frontend SHALL provide a dashboard showing notification delivery metrics. (后续优化)
 
 #### Scenario: Display delivery statistics
 - **WHEN** admin opens monitoring dashboard
 - **THEN** total sent, delivered, failed counts are displayed
 
-#### Scenario: Display success rate trend
-- **WHEN** dashboard loads
-- **THEN** a chart showing success rate over time is rendered
-
-#### Scenario: List failed notifications
-- **WHEN** admin views failed notifications tab
-- **THEN** list of failed notifications with error reasons is shown
-
 ### Requirement: Manual Retry
-The frontend SHALL allow operators to manually retry failed notifications.
+The frontend SHALL allow operators to manually retry failed notifications. (后续优化)
 
 #### Scenario: Retry single notification
 - **WHEN** operator clicks retry on a failed notification
 - **THEN** notification is re-queued for delivery
-
-### Requirement: Authentication
-The frontend SHALL support admin login to access configuration and monitoring features.
-
-#### Scenario: Admin login
-- **WHEN** admin enters credentials and submits
-- **THEN** if credentials are valid, admin is logged in and redirected to dashboard

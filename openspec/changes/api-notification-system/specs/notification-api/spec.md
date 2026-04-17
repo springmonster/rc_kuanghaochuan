@@ -17,10 +17,3 @@ The API SHALL return a 202 Accepted response immediately after accepting the not
 #### Scenario: Notification accepted for async processing
 - **WHEN** API receives and validates a notification request
 - **THEN** API returns 202 Accepted with a unique notification ID within 100ms
-
-### Requirement: API enforces rate limiting per source system
-The API SHALL enforce rate limits per sending business system to prevent overload.
-
-#### Scenario: Rate limit exceeded returns 429
-- **WHEN** a business system exceeds its configured rate limit
-- **THEN** API returns 429 Too Many Requests with Retry-After header
