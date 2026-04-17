@@ -1,43 +1,28 @@
-## ADDED Requirements
+## MVP Requirements (当前实现)
 
 ### Requirement: Configuration Management Page
-The frontend SHALL provide a web interface for managing destination configurations.
+The frontend SHALL provide a web interface for managing destinations.
 
-#### Scenario: List all destinations
-- **WHEN** admin opens configuration page
-- **THEN** all destinations are displayed in a table with name, URL, auth type, status
+#### Scenario: List destinations
+- **WHEN** admin opens page
+- **THEN** all destinations are displayed
 
-#### Scenario: Create new destination
-- **WHEN** admin fills in destination form and submits
-- **THEN** destination is created and appears in the list
+#### Scenario: Create destination
+- **WHEN** admin fills form and submits
+- **THEN** destination is created
 
-#### Scenario: Edit existing destination
-- **WHEN** admin clicks edit on a destination
-- **THEN** form is populated with current values for editing
+#### Scenario: Edit destination
+- **WHEN** admin clicks edit
+- **THEN** form is populated for editing
 
 #### Scenario: Delete destination
-- **WHEN** admin clicks delete and confirms
-- **THEN** destination is removed from the list
+- **WHEN** admin clicks delete
+- **THEN** destination is removed
 
-### Requirement: Authentication
-The frontend SHALL support admin login to access configuration features.
+## Future Requirements (后续添加)
 
-#### Scenario: Admin login
-- **WHEN** admin enters credentials and submits
-- **THEN** if credentials are valid, admin is logged in and redirected to configuration page
-
-## Future Requirements (暂不实现)
-
-### Requirement: Monitoring Dashboard
-The frontend SHALL provide a dashboard showing notification delivery metrics. (后续优化)
-
-#### Scenario: Display delivery statistics
-- **WHEN** admin opens monitoring dashboard
-- **THEN** total sent, delivered, failed counts are displayed
-
-### Requirement: Manual Retry
-The frontend SHALL allow operators to manually retry failed notifications. (后续优化)
-
-#### Scenario: Retry single notification
-- **WHEN** operator clicks retry on a failed notification
-- **THEN** notification is re-queued for delivery
+| 功能 | 说明 | 优先级 |
+|------|------|--------|
+| 监控面板 | 投递统计看板 | P3 |
+| 手动重试 | 失败通知重试 | P3 |
+| 登录认证 | 管理员登录 | P3 |

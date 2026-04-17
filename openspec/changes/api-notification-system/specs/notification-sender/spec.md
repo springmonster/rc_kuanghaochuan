@@ -1,37 +1,26 @@
 ## ADDED Requirements
 
 ### Requirement: Sender delivers notifications to external APIs
-The sender SHALL apply the destination-specific configuration (URL, headers, authentication, body template), and execute the HTTP request to the external API.
+The sender SHALL execute HTTP POST requests to external APIs using destination configuration.
 
-#### Scenario: Successful delivery to external API
-- **WHEN** sender processes a notification and external API returns 2xx status
-- **THEN** sender marks notification as delivered and records success metrics
+#### Scenario: Successful delivery
+- **WHEN** external API returns 2xx status
+- **THEN** notification is marked as success
 
-#### Scenario: External API returns error status
-- **WHEN** sender processes a notification and external API returns 4xx or 5xx status
-- **THEN** sender marks notification as failed and schedules retry if retryable
+#### Scenario: Failed delivery with retry
+- **WHEN** external API returns non-2xx or timeout
+- **THEN** notification is retried up to 3 times with fixed interval
 
-### Requirement: Sender supports configurable retry with exponential backoff
-The sender SHALL retry failed notifications with exponential backoff, up to a configurable maximum attempts.
+### Requirement: Sender supports API Key authentication
+The sender SHALL include API Key in X-API-Key header.
 
-#### Scenario: Retry with exponential backoff
-- **WHEN** a notification fails and retry count is below maximum
-- **THEN** sender reschedules with delay = base_delay * 2^retry_count
+#### Scenario: API Key header
+- **WHEN** destination has API Key configured
+- **THEN** sender includes X-API-Key: <key> header
 
-### Requirement: Sender supports multiple authentication methods
-The sender SHALL support API Key, Bearer Token, Basic Auth, and OAuth2 client credentials for external API authentication.
+### Requirement: Sender supports placeholder replacement
+The sender SHALL replace {{variable}} placeholders in body with payload values.
 
-#### Scenario: API Key authentication
-- **WHEN** destination is configured with API Key auth
-- **THEN** sender includes X-API-Key header in request
-
-#### Scenario: Bearer Token authentication
-- **WHEN** destination is configured with Bearer Token auth
-- **THEN** sender includes Authorization: Bearer <token> header in request
-
-### Requirement: Sender respects destination-specific timeouts
-The sender SHALL use the timeout configured per destination, not a global default.
-
-#### Scenario: Request timeout handled gracefully
-- **WHEN** external API does not respond within configured timeout
-- **THEN** sender treats as failure and schedules retry
+#### Scenario: Placeholder replacement
+- **WHEN** body contains {{user_id}} and payload has user_id="123"
+- **THEN** body contains "user_id":"123"
