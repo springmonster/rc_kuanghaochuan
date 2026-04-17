@@ -18,6 +18,7 @@ public class DestinationResponseDTO {
     private String url;
     private String apiKey;
     private String headers;
+    private String body;
     private Integer retryCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

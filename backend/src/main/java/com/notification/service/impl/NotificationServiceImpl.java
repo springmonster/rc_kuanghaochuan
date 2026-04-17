@@ -99,16 +99,16 @@ public class NotificationServiceImpl implements NotificationService {
             }
         }
 
-        Map<String, String> body = payload != null ? payload : new HashMap<>();
         String replacedBody;
-        try {
-            replacedBody = objectMapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            replacedBody = "{}";
-        }
-
-        if (destination.getHeaders() != null && destination.getHeaders().contains("{{")) {
-            replacedBody = PlaceholderReplacer.replace(replacedBody, payload);
+        if (destination.getBody() != null && !destination.getBody().isEmpty()) {
+            replacedBody = PlaceholderReplacer.replace(destination.getBody(), payload);
+        } else {
+            Map<String, String> body = payload != null ? payload : new HashMap<>();
+            try {
+                replacedBody = objectMapper.writeValueAsString(body);
+            } catch (JsonProcessingException e) {
+                replacedBody = "{}";
+            }
         }
 
         HttpEntity<String> entity = new HttpEntity<>(replacedBody, headers);

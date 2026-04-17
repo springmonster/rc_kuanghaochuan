@@ -38,6 +38,7 @@ public class DestinationServiceImpl implements DestinationService {
                 .url(request.getUrl())
                 .apiKey(request.getApiKey())
                 .headers(request.getHeaders())
+                .body(request.getBody())
                 .retryCount(request.getRetryCount() != null ? request.getRetryCount() : 3)
                 .build();
         Destination saved = destinationRepository.save(destination);
@@ -53,6 +54,7 @@ public class DestinationServiceImpl implements DestinationService {
         destination.setUrl(request.getUrl());
         destination.setApiKey(request.getApiKey());
         destination.setHeaders(request.getHeaders());
+        destination.setBody(request.getBody());
         if (request.getRetryCount() != null) {
             destination.setRetryCount(request.getRetryCount());
         }
@@ -76,6 +78,7 @@ public class DestinationServiceImpl implements DestinationService {
                 .url(entity.getUrl())
                 .apiKey(entity.getApiKey())
                 .headers(entity.getHeaders())
+                .body(entity.getBody())
                 .retryCount(entity.getRetryCount())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

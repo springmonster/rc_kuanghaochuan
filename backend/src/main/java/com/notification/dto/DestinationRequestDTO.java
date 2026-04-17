@@ -22,5 +22,7 @@ public class DestinationRequestDTO {
 
     private String headers;
 
+    private String body;
+
     private Integer retryCount;
 }

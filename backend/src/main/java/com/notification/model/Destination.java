@@ -32,6 +32,9 @@ public class Destination {
     @Column(columnDefinition = "TEXT")
     private String headers;
 
+    @Column(columnDefinition = "TEXT")
+    private String body;
+
     @Column(name = "retry_count")
     @Builder.Default
     private Integer retryCount = 3;
