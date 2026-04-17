@@ -73,31 +73,33 @@
 - [x] 2.6.3 在通知流程中记录状态（pending/success/failed）
 - [x] 2.6.4 提供查询接口（可选，MVP 可暂不实现前端展示）
 
-### Phase 3: 前端（P3，后续添加）
+### Phase 3: 前端（MVP）
+
+> README.md 中 MVP 功能包含"Destination 配置管理（CRUD）"，前端是必需的
 
 #### 3.1 搭建 Vue 3 项目
 
-- [ ] 3.1.1 使用 Vite 创建 Vue 3 项目
-- [ ] 3.1.2 配置项目结构和依赖（vue-router, axios）
-- [ ] 3.1.3 验证项目可运行
+- [x] 3.1.1 使用 Vite 创建 Vue 3 项目
+- [x] 3.1.2 配置项目结构和依赖（vue-router, axios）
+- [x] 3.1.3 验证项目可运行
 
 #### 3.2 实现 Destination 列表页面
 
-- [ ] 3.2.1 创建 DestinationList.vue 页面
-- [ ] 3.2.2 调用后端 API 获取列表
-- [ ] 3.2.3 实现表格展示和分页
+- [x] 3.2.1 创建 DestinationList.vue 页面
+- [x] 3.2.2 调用后端 API 获取列表
+- [x] 3.2.3 实现表格展示和分页
 
 #### 3.3 实现 Destination 创建/编辑页面
 
-- [ ] 3.3.1 创建 DestinationForm.vue 组件
-- [ ] 3.3.2 实现表单验证
-- [ ] 3.3.3 对接后端 POST/PUT API
+- [x] 3.3.1 创建 DestinationForm.vue 组件
+- [x] 3.3.2 实现表单验证
+- [x] 3.3.3 对接后端 POST/PUT API
 
 #### 3.4 对接后端 API
 
-- [ ] 3.4.1 封装 API 调用模块（api/destination.js）
-- [ ] 3.4.2 实现删除功能
-- [ ] 3.4.3 测试完整 CRUD 流程
+- [x] 3.4.1 封装 API 调用模块（api/destination.js）
+- [x] 3.4.2 实现删除功能
+- [x] 3.4.3 测试完整 CRUD 流程
 
 ## 后续功能（按优先级）
 
