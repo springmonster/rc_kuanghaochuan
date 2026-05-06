@@ -1,0 +1,127 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="第 1 页" id="YlhP9NUKIsCAqioVC-Dm">
+    <mxGraphModel dx="1666" dy="769" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="ellipse;fillColor=strokeColor;fontColor=light-dark(#333333,#cccccc);" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="471" y="8" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=1;arcSize=20;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="PENDING" vertex="1">
+          <mxGeometry height="40" width="79" x="438" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="rounded=1;arcSize=20;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="SUCCESS" vertex="1">
+          <mxGeometry height="40" width="77" x="450" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=1;arcSize=20;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="FAILED" vertex="1">
+          <mxGeometry height="40" width="63" x="293" y="338" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="ellipse;shape=endState;fillColor=strokeColor;fontColor=light-dark(#333333,#cccccc);" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="346" y="637" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="初始状态&#xa;        记录请求 payload&#xa;        记录 destination_id" vertex="1">
+          <mxGeometry height="152" width="239" x="8" y="282" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="align=left;spacingLeft=4;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="初始状态&#xa;        记录请求 payload&#xa;        记录 destination_id" vertex="1">
+          <mxGeometry height="102" width="169" x="43" y="307" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="终态（失败）&#xa;        记录 error_message&#xa;        记录最后一次 retry_count&#xa;        可通过 H2 Console 查询" vertex="1">
+          <mxGeometry height="176" width="285" x="509" y="556" as="geometry" />
+        </mxCell>
+        <mxCell id="10" parent="1" style="align=left;spacingLeft=4;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="终态（失败）&#xa;        记录 error_message&#xa;        记录最后一次 retry_count&#xa;        可通过 H2 Console 查询" vertex="1">
+          <mxGeometry height="126" width="215" x="544" y="581" as="geometry" />
+        </mxCell>
+        <mxCell id="11" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="终态（成功）&#xa;        记录 response_code&#xa;        记录 retry_count" vertex="1">
+          <mxGeometry height="176" width="242" x="959" y="556" as="geometry" />
+        </mxCell>
+        <mxCell id="12" parent="1" style="align=left;spacingLeft=4;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="终态（成功）&#xa;        记录 response_code&#xa;        记录 retry_count" vertex="1">
+          <mxGeometry height="102" width="172" x="994" y="593" as="geometry" />
+        </mxCell>
+        <mxCell id="13" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="" vertex="1">
+          <mxGeometry x="821" y="358" as="geometry" />
+        </mxCell>
+        <mxCell id="14" parent="1" style="whiteSpace=wrap;strokeWidth=2;fillColor=light-dark(#eeeeee,#1f2020);strokeColor=light-dark(#999999,#cccccc);fontColor=light-dark(#333333,#cccccc);" value="" vertex="1">
+          <mxGeometry x="876" y="644" as="geometry" />
+        </mxCell>
+        <mxCell id="15" edge="1" parent="1" source="2" style="curved=1;startArrow=none;;fillColor=none;;exitX=0.47;exitY=1;entryX=0.5;entryY=0;" target="3" value="业务系统发起通知&#xa;POST /api/v1/notifications">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="16" edge="1" parent="1" source="3" style="curved=1;startArrow=none;;fillColor=none;;exitX=0.54;exitY=1;entryX=0.5;entryY=0;" target="4" value="投递成功 (HTTP 2xx)&#xa;记录 response_code">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="489" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="17" edge="1" parent="1" source="3" style="curved=1;startArrow=none;endArrow=none;fillColor=none;;exitX=1;exitY=0.73;entryX=Infinity;entryY=-Infinity;" target="13" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="821" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="18" edge="1" parent="1" source="13" style="curved=1;startArrow=none;endArrow=none;fillColor=none;;exitX=Infinity;exitY=Infinity;entryX=Infinity;entryY=-Infinity;" target="14" value="投递失败, 等待重试&#xa;sleep(5000ms) 后重试&#xa;retry_count &amp;lt; maxRetries">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="821" y="556" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="19" edge="1" parent="1" source="14" style="curved=1;startArrow=none;;fillColor=none;;exitX=Infinity;exitY=-Infinity;entryX=1;entryY=0.68;" target="3" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="932" y="556" />
+              <mxPoint x="932" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="20" edge="1" parent="1" source="3" style="curved=1;startArrow=none;;fillColor=none;;exitX=0.02;exitY=1;entryX=0.5;entryY=0;" target="5" value="重试耗尽&#xa;retry_count == 3&#xa;仍投递失败">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="325" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="21" edge="1" parent="1" source="5" style="curved=1;startArrow=none;;fillColor=none;;exitX=0.46;exitY=1;entryX=0.3;entryY=0;" target="6" value="流程结束&#xa;人工或定时任务可重新触发">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="314" y="434" />
+              <mxPoint x="314" y="556" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="22" edge="1" parent="1" source="4" style="curved=1;startArrow=none;;fillColor=none;;exitX=0.46;exitY=1;entryX=1.03;entryY=0.15;" target="6" value="流程结束&#xa;通知成功送达">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="478" y="434" />
+              <mxPoint x="478" y="556" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="23" edge="1" parent="1" source="3" style="curved=1;dashed=1;startArrow=none;;fillColor=none;;exitX=0;exitY=0.73;entryX=0.5;entryY=0;" target="8" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="128" y="221" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" edge="1" parent="1" source="5" style="curved=1;dashed=1;startArrow=none;;fillColor=none;;exitX=1;exitY=0.68;entryX=0.5;entryY=0;" target="10" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="651" y="434" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25" edge="1" parent="1" source="4" style="curved=1;dashed=1;startArrow=none;;fillColor=none;;exitX=1;exitY=0.62;entryX=0.5;entryY=0;" target="12" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1081" y="434" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
